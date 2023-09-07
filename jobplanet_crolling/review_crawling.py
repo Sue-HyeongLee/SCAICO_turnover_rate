@@ -85,5 +85,5 @@ df = df.set_index("company")
 df.to_csv("service_company_reviews.csv") #분야별 파일 이름 설정 
 
 
-#드라이버 종
+#드라이버 종료
 driver.close()
