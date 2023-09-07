@@ -77,15 +77,12 @@ for url_m in data:
 adv = ' '.join(map(str, adv))
 dadv = ' '.join(map(str, dadv))
 
-File = open("기업 리뷰_장점.txt", "w")
-File.write(company)
-File.write(adv)
-File.close()
-
-File = open("기업 리뷰_단점.txt", "w")
-File.write(company)
-File.write(adv)
-File.close()
+#csv 파일
+df = pd.DataFrame({"company": [company],
+                "pros":[adv],
+                "cons":[dadv]})
+df = df.set_index("company")
+df.to_csv("service_company_reviews.csv") #분야별 파일 이름 설정 
 
 
 #드라이버 종
