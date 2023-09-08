@@ -42,23 +42,25 @@ login_btn.click()
 
 
 #웹 페이지 접속
-review_list = []
 adv_rev = [] #기업별 장점
 dadv_rev = [] #기업별 단점
+company_list = []
 
 
-f = open('C:/Users/Jeonghwan Cho/Desktop/construction_company_url.txt', 'r')  #텍스트 파일 이름 알아서 바꿔서 넣기.
+f = open('C:/Users/Jeonghwan Cho/Desktop/bank_financial_business_company_url.txt', 'r')  #텍스트 파일 이름 알아서 바꿔서 넣기.
 data = f.read().splitlines() #url 리스트 정리
 
 for url_m in data:
-    adv = [] #한 기업의 장점 리스트
-    dadv = [] #한 기업의 단점 리스트
     url_m = url_m.replace('info', 'reviews')
-    company_list = []
-    for i in range(1, 2000): #페이지
-            time.sleep(5)
+    adv = []
+    dadv = []
+
+    for i in range(1, 1000): #페이지
+            
+            time.sleep(7)
             url = url_m + f"page={i}&year%5B%5D=2023&year%5B%5D=2022"
             driver.get(url)
+ 
             html = driver.page_source
             soup = BeautifulSoup(html, 'lxml')
             company = soup.find('h1', 'name').text #기업 이름
@@ -66,9 +68,11 @@ for url_m in data:
             if i == 1:
                 company_list.append(company)
 
-            if "등록된 기업리뷰가 없습니다." in soup.find('p', 'txt').text : #예외처리 
+            if "등록된 기업리뷰가 없습니다." in soup.find('p', 'txt').text : #예외처리
                 break
-
+            
+            review_list = []
+            
             rate_list = soup.find_all('dd', 'df1')
             for rev in rate_list:
                 review_list.append(rev)
@@ -87,11 +91,11 @@ for url_m in data:
     
 
 #csv 파일
-df = pd.DataFrame({"company": company,
+df = pd.DataFrame({"company": company_list,
                 "pros": adv_rev,
                 "cons":dadv_rev})
 df = df.set_index("company")
-df.to_csv("service_company_reviews.csv", encoding = 'cp949') #분야별 파일 이름 설정 #한글 오류 처리
+df.to_csv("bank_financial_business_reviews.csv", encoding = 'cp949') #분야별 파일 이름 설정 
 
 
 #드라이버 종료
