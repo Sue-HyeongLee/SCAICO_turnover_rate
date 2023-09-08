@@ -43,46 +43,55 @@ login_btn.click()
 
 #웹 페이지 접속
 review_list = []
-adv = [] #장점
-dadv = [] #단점
+adv_rev = [] #기업별 장점
+dadv_rev = [] #기업별 단점
 
-f = open('C:/Users/Jeonghwan Cho/Desktop/it_web_communication_company_url.txt', 'r')  #텍스트 파일 이름 알아서 바꿔서 넣기.
+
+f = open('C:/Users/Jeonghwan Cho/Desktop/construction_company_url.txt', 'r')  #텍스트 파일 이름 알아서 바꿔서 넣기.
 data = f.read().splitlines() #url 리스트 정리
 
 for url_m in data:
+    adv = [] #한 기업의 장점 리스트
+    dadv = [] #한 기업의 단점 리스트
     url_m = url_m.replace('info', 'reviews')
-    for i in range(1,2000): #페이지
-        try:
+    company_list = []
+    for i in range(1, 2000): #페이지
             time.sleep(5)
             url = url_m + f'page={i}'
             driver.get(url)
             html = driver.page_source
             soup = BeautifulSoup(html, 'lxml')
             company = soup.find('h1', 'name').text #기업 이름
+            
+            if i == 1:
+                company_list.append(company)
+
+            if "등록된 기업리뷰가 없습니다." in soup.find('p', 'txt').text : #예외처리 
+                break
 
             rate_list = soup.find_all('dd', 'df1')
             for rev in rate_list:
                 review_list.append(rev)
 
-            for i in range(len(rate_list)//3):
-                adv.append(review_list[3*i].text)
-                dadv.append(review_list[3*i + 1].text)
-                
-        except: #페이지 존재 안할 때 예외처리
-            pass
+            for j in range(len(rate_list)//3):
+                adv.append(review_list[3*j].text)
+                dadv.append(review_list[3*j + 1].text)
 
 
 
-#리스트 하나의 문자열로 변환
-adv = ' '.join(map(str, adv))
-dadv = ' '.join(map(str, dadv))
+    #리스트 하나의 문자열로 변환  #기업별 리뷰
+    adv = ' '.join(map(str, adv))
+    dadv = ' '.join(map(str, dadv))
+    adv_rev.append(adv)
+    dadv_rev.append(dadv)
+    
 
 #csv 파일
-df = pd.DataFrame({"company": [company],
-                "pros":[adv],
-                "cons":[dadv]})
+df = pd.DataFrame({"company": company,
+                "pros": adv_rev,
+                "cons":dadv_rev})
 df = df.set_index("company")
-df.to_csv("service_company_reviews.csv") #분야별 파일 이름 설정 
+df.to_csv("service_company_reviews.csv", encoding = 'cp949') #분야별 파일 이름 설정 #한글 오류 처리
 
 
 #드라이버 종료
