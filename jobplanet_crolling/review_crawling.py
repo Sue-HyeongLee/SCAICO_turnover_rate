@@ -57,7 +57,7 @@ for url_m in data:
     company_list = []
     for i in range(1, 2000): #페이지
             time.sleep(5)
-            url = url_m + f'page={i}'
+            url = url_m + f"page={i}&year%5B%5D=2023&year%5B%5D=2022"
             driver.get(url)
             html = driver.page_source
             soup = BeautifulSoup(html, 'lxml')
