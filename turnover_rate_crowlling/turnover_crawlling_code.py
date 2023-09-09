@@ -61,7 +61,7 @@ for company_name in company_name_list: # company_name 뽑기.
       turnover_rate = driver.find_element(By.CSS_SELECTOR, '#summary > div.sc-3dff0452-2.bskeRt > div > div:nth-child(2) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-16.duhzUz > div:nth-child(1) > span:nth-child(3)').text #퇴사율이 직접적으로 명시되어있어, 이것을 가져올 것임.
       turnoverrate_list.append(turnover_rate)
       print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)
-      break
+      
     except NoSuchElementException: # 퇴사율을 직접적으로 적어 놓지 않았음. 
       try: # 하지만, 퇴사 명수가 있는 경우. 퇴사 명수/전체 명수로 대략 퇴사율을 구할 수 있음.
         turnover_num = driver.find_element(By.CSS_SELECTOR, "#summary > div.sc-3dff0452-2.bskeRt > div > div:nth-child(2) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-16.duhzUz > div:nth-child(1) > span.sc-9b8eb5d-0.dKtCzi").text
@@ -77,7 +77,7 @@ for company_name in company_name_list: # company_name 뽑기.
       except NoSuchElementException: # 만약 퇴사 명수도 없다면.
         turnoverrate_list.append('정보없음.')
         print('선택된 기업이 wanted sight에 있으나, 정보가 없습니다.', company_name)
-df = pd.DataFrame({"company_name": company_name_list[:2], "turn_over_rate": turnoverrate_list})
+df = pd.DataFrame({"company_name": company_name_list, "turn_over_rate": turnoverrate_list})
 df.to_csv("./output/education_turn_over_rate.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
 print("종료되었습니다.")
 
