@@ -38,20 +38,13 @@ for company_name in company_name_list: # company_name 뽑기.
   driver.find_element(By.CSS_SELECTOR, '#__next > div:nth-child(1) > main > div > div > div.sc-a1c834fc-2.jjVsPe > button').click() # 클릭할 것임.
   time.sleep(5)
   driver.find_element(By.CSS_SELECTOR, 'body > div.modalContainer > div > div.sc-84847f9f-2.jzpCXM > div > div > form > div > div > input').send_keys(company_name) # company_name 검색.
-  time.sleep(1)
-  
-  
-  try: 
-    driver.find_element(By.CSS_SELECTOR, 'body > div.modalContainer > div > div.sc-84847f9f-2.jzpCXM > div > div > form > div.sc-572e6719-0.bGoNnq > div') # company_name이 검색되지 않는다면, '검색 결과 없음'이 나올 것임. 이에 대한 selecotr
-    turnoverrate_list.append('('+'9999%'+')')
-    print('선택된 기업이 wanted sight에 없습니다.', company_name) 
+  time.sleep(5)
     
 
-  except NoSuchElementException: # 검색 결과가 있다면
+  try: # 검색 결과가 있다면
     driver.find_element(By.CSS_SELECTOR,'body > div.modalContainer > div > div.sc-84847f9f-2.jzpCXM > div > div > form > div.sc-572e6719-0.bGoNnq > ul > li > a').click() # 맨 위의 검색 결과를 클릭.
     time.sleep(10)
     company = driver.find_element(By.CSS_SELECTOR, "#__next > div:nth-child(1) > main > section > section > div.sc-f57504e-4.cTZuoU > div > div.sc-2815c9a5-0.esIFkh > div.sc-2815c9a5-3.bEDlck > h1").text # 클릭 후, 회사 이름을 가져올 것임.
-    
     if company_name != company: # 만약 클릭은 했지만 찾으려는 회사 이름과 맨 위의 검색 결과 회사 이름이 같지 않다면,
       
       turnoverrate_list.append('('+'9999%'+')')
@@ -62,21 +55,25 @@ for company_name in company_name_list: # company_name 뽑기.
       turnoverrate_list.append(turnover_rate)
       print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)
       
-    except NoSuchElementException: # 퇴사율을 직접적으로 적어 놓지 않았음. 
-      try: # 하지만, 퇴사 명수가 있는 경우. 퇴사 명수/전체 명수로 대략 퇴사율을 구할 수 있음.
+    except NoSuchElementException: # 퇴사율을 직접적으로 적어 놓지 않았음. 하지만, 퇴사 명수가 있는 경우. 퇴사 명수/전체 명수로 대략 퇴사율을 구할 수 있음.
         turnover_num = driver.find_element(By.CSS_SELECTOR, "#summary > div.sc-3dff0452-2.bskeRt > div > div:nth-child(2) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-16.duhzUz > div:nth-child(1) > span.sc-9b8eb5d-0.dKtCzi").text
+        if turnover_num == '정보없음': # 만약 퇴사 명수도 없다면.
+          turnoverrate_list.append('정보없음.')
+          print('선택된 기업이 wanted sight에 있으나, 정보가 없습니다.', company_name)
+          continue
         turnover_num = int(turnover_num[:-1])
         all_num = driver.find_element(By.CSS_SELECTOR, "#employee > div.sc-3dff0452-2.bskeRt > div.sc-2021c512-2.bQkjUQ > div:nth-child(1) > div:nth-child(3) > span.sc-9b8eb5d-0.cUymhX" ).text
+      
         all_num = int(all_num[:-2])
         turn_over_rate =round(turnover_num/all_num,2)
         turn_over_rate = str(int(turn_over_rate*100))
         
         turn_over_rate = '('+turn_over_rate+'%)'
         turnoverrate_list.append(turn_over_rate)
-        print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)
-      except NoSuchElementException: # 만약 퇴사 명수도 없다면.
-        turnoverrate_list.append('정보없음.')
-        print('선택된 기업이 wanted sight에 있으나, 정보가 없습니다.', company_name)
+        print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)            
+  except NoSuchElementException: 
+    turnoverrate_list.append('('+'9999%'+')')
+    print('선택된 기업이 wanted sight에 없습니다.', company_name) 
 df = pd.DataFrame({"company_name": company_name_list, "turn_over_rate": turnoverrate_list})
 df.to_csv("./output/education_turn_over_rate.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
 print("종료되었습니다.")
