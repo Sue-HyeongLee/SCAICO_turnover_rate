@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import pyautogui # 이건 자동으로 엔터를 쳐줄 것임.
 from selenium.common.exceptions import NoSuchElementException  # 에러 발생할 때 대비시키기 위해.
-file = pd.read_csv("education_review.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
+file = pd.read_csv("construction_review.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
 company_name_list = file['cmp'].values.tolist() # 회사의 이름을 리스트로 만듭니다.
 company_name_range = len(company_name_list)
 for i in range(company_name_range): # 회사의 이름에서 ()로 표시된 값들을 제거 합니다. # 제거해야 검색할 수 있어요.
@@ -61,10 +61,14 @@ for company_name in company_name_list: # company_name 뽑기.
           turnoverrate_list.append('정보없음.')
           print('선택된 기업이 wanted sight에 있으나, 정보가 없습니다.', company_name)
           continue
-        turnover_num = int(turnover_num[:-1])
+        turnover_num = turnover_num[:-1]
+        turnover_num = turnover_num.replace(',', '')
+        turnover_num = int(turnover_num)
         all_num = driver.find_element(By.CSS_SELECTOR, "#employee > div.sc-3dff0452-2.bskeRt > div.sc-2021c512-2.bQkjUQ > div:nth-child(1) > div:nth-child(3) > span.sc-9b8eb5d-0.cUymhX" ).text
-      
-        all_num = int(all_num[:-2])
+        all_num = all_num[:-2]
+        all_num = all_num.replace(',', '')
+        print(all_num)
+        all_num = int(all_num)
         turn_over_rate =round(turnover_num/all_num,2)
         turn_over_rate = str(int(turn_over_rate*100))
         
@@ -75,7 +79,7 @@ for company_name in company_name_list: # company_name 뽑기.
     turnoverrate_list.append('('+'9999%'+')')
     print('선택된 기업이 wanted sight에 없습니다.', company_name) 
 df = pd.DataFrame({"company_name": company_name_list, "turn_over_rate": turnoverrate_list})
-df.to_csv("./output/education_turn_over_rate.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
+df.to_csv("./output/construction_turn_over_rate.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
 print("종료되었습니다.")
 
 
