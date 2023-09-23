@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import pyautogui # 이건 자동으로 엔터를 쳐줄 것임.
 from selenium.common.exceptions import NoSuchElementException  # 에러 발생할 때 대비시키기 위해.
-file = pd.read_csv("it_web_communication_reviews_300_end.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
+file = pd.read_csv("it_web_communication_reviews_1_100.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
 company_name_list = file['cmp'].values.tolist() # 회사의 이름을 리스트로 만듭니다.
 company_name_range = len(company_name_list)
 for i in range(company_name_range): # 회사의 이름에서 ()로 표시된 값들을 제거 합니다. # 제거해야 검색할 수 있어요.
@@ -31,7 +31,8 @@ for i in range(company_name_range): # 회사의 이름에서 ()로 표시된 값
 
 chrome_options = webdriver.ChromeOptions()
 driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()), options = chrome_options)
-turnoverrate_list = []
+average_salary_list = [] # 평균 연봉.
+total_sale_list = [] # 총 매출액.
 for company_name in company_name_list: # company_name 뽑기.
   driver.get(url="https://insight.wanted.co.kr/")
   time.sleep(5) # 페이지 렌더링 되는 시간 줄거임.
@@ -49,100 +50,26 @@ for company_name in company_name_list: # company_name 뽑기.
     company = driver.find_element(By.CSS_SELECTOR, "#__next > div > main > section > section > div.sc-f57504e-4.cTZuoU > div > div.sc-2815c9a5-0.esIFkh > div.sc-2815c9a5-3.bEDlck > h1").text # 클릭 후, 회사 이름을 가져올 것임.
     
     if company_name != company: # 만약 클릭은 했지만 찾으려는 회사 이름과 맨 위의 검색 결과 회사 이름이 같지 않다면,
-        turnoverrate_list.append('('+'9999%'+')')
+        average_salary_list.append('회사없음1')
+        total_sale_list.append('회사없음1')
         print('선택된 기업이 wanted sight에 없습니다.', company_name) # 우리는 선택된 기업이 없음으로 판단할 것임.
         continue
     
     try:
-        turnover_rate = driver.find_element(By.CSS_SELECTOR, '#summary > div.sc-b1bcd09b-2.iFdoBk > div > div:nth-child(3) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-16.duhzUz > div:nth-child(1) > span:nth-child(3)').text 
-        turnoverrate_list.append(turnover_rate)
-        print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)
+        average_salary = driver.find_element(By.CSS_SELECTOR, '#summary > div.sc-b1bcd09b-2.iFdoBk > div > div:nth-child(2) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-12.isyksU > span').text
+        total_sale = driver.find_element(By.CSS_SELECTOR, '#summary > div.sc-b1bcd09b-2.iFdoBk > div > div:nth-child(4) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-12.isyksU > span').text
+        average_salary_list.append(average_salary)
+        total_sale_list.append(total_sale)
+        print('wanted insight에 있습니다.', company_name)
         
-    except NoSuchElementException: # 퇴사율을 직접적으로 적어 놓지 않았음. 하지만, 퇴사 명수가 있는 경우. 퇴사 명수/전체 명수로 대략 퇴사율을 구할 수 있음.
-          turnover_num = driver.find_element(By.CSS_SELECTOR, "#summary > div.sc-b1bcd09b-2.iFdoBk > div > div:nth-child(3) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-16.duhzUz > div:nth-child(1) > span:nth-child(2)").text
-          if turnover_num == '정보없음': # 만약 퇴사 명수도 없다면.
-            turnoverrate_list.append('정보없음.')
-            print('선택된 기업이 wanted sight에 있으나, 정보가 없습니다.', company_name)
-            continue
-          turnover_num = turnover_num[:-1]
-          turnover_num = turnover_num.replace(',', '')
-          turnover_num = int(turnover_num)
-          all_num = driver.find_element(By.CSS_SELECTOR, '#summary > div.sc-b1bcd09b-2.iFdoBk > div > div:nth-child(3) > div.sc-f33d0827-14.boPJph > div.sc-f33d0827-12.isyksU > span' ).text
-          all_num = all_num[:-1]
-          all_num = all_num.replace(',', '')
-          all_num = int(all_num)
-          turn_over_rate =round(turnover_num/all_num,2)
-          turn_over_rate = str(int(turn_over_rate*100))
-          turn_over_rate = '('+turn_over_rate+'%)'
-          turnoverrate_list.append(turn_over_rate)
-          print('선택된 기업이 wanted sight에 있고, 정보가 있습니다.', company_name)            
+    except NoSuchElementException: 
+      average_salary_list.append('회사없음')
+      total_sale_list.append('회사없음')
+      print('선택된 기업이 wanted sight에 없습니다.', company_name)        
   except NoSuchElementException:
-    turnoverrate_list.append('('+'9999%'+')')
+    average_salary_list.append('회사없음')
+    total_sale_list.append('회사없음')
     print('선택된 기업이 wanted sight에 없습니다.', company_name) 
-df = pd.DataFrame({"company_name": company_name_list, "turn_over_rate": turnoverrate_list})
-df.to_csv("./output/it_web_communication_300_end_turn_over_rate.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
+df = pd.DataFrame({"company_name": company_name_list, "average_salary": average_salary_list, "total_sale" : total_sale_list})
+df.to_csv("./output/it_web_communication_1_100_financial_variable.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
 print("종료되었습니다.")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
