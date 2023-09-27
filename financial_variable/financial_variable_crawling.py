@@ -9,7 +9,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import pyautogui # 이건 자동으로 엔터를 쳐줄 것임.
 from selenium.common.exceptions import NoSuchElementException  # 에러 발생할 때 대비시키기 위해.
+<<<<<<< HEAD
 file = pd.read_csv("media_design_reviews.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
+=======
+file = pd.read_csv("/Users/myeongseop.kim/Desktop/SCAISCO/csv files/manufacture_chemistry_review.csv", encoding='utf-8-sig') # 파일을 읽어옵니다.
+>>>>>>> 94da0a38889b1a12cdabf8e92f8ec216b6af3458
 company_name_list = file['cmp'].values.tolist() # 회사의 이름을 리스트로 만듭니다.
 company_name_range = len(company_name_list)
 for i in range(company_name_range): # 회사의 이름에서 ()로 표시된 값들을 제거 합니다. # 제거해야 검색할 수 있어요.
@@ -71,5 +75,9 @@ for company_name in company_name_list: # company_name 뽑기.
     total_sale_list.append('회사없음')
     print('선택된 기업이 wanted sight에 없습니다.', company_name) 
 df = pd.DataFrame({"company_name": company_name_list, "average_salary": average_salary_list, "total_sale" : total_sale_list})
+<<<<<<< HEAD
 df.to_csv("./output/media_design_financial_variable.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
+=======
+df.to_csv("manufacture_chemistry_financial_variable.csv", encoding= 'utf-8-sig') # utf-8로 할 경우, 파일이 깨짐.
+>>>>>>> 94da0a38889b1a12cdabf8e92f8ec216b6af3458
 print("종료되었습니다.")
